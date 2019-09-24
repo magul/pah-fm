@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 
 from rest_framework.exceptions import ValidationError
 
-from .models import Car, Drive, Passenger, User, Project
+from .models import Car, Drive, User, Project
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -19,17 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'groups')
-
-
-class PassengerSerializer(serializers.ModelSerializer):
-    id = fields.IntegerField(required=True)
-
-    first_name = fields.CharField(read_only=True)
-    last_name = fields.CharField(read_only=True)
-
-    class Meta:
-        model = Passenger
-        fields = ('id', 'first_name', 'last_name')
 
 
 class CarSerializer(serializers.ModelSerializer):
@@ -59,7 +48,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 class DriveSerializer(serializers.ModelSerializer):
     driver = UserSerializer(read_only=True)
     car = CarSerializer()
-    passengers = PassengerSerializer(many=True)
+    passenger = UserSerializer(many=True)
     project = ProjectSerializer()
 
     class Meta:
@@ -78,9 +67,9 @@ class DriveSerializer(serializers.ModelSerializer):
         car = Car.objects.get(pk=car_data['id'])
         project_data = validated_data.pop('project')
         project = Project.objects.get(pk=project_data['id'])
-        passengers = Passenger.objects.filter(
-            id__in=[p['id'] for p in passengers_data],
-        ).all()
+        passenger = User.objects.get(
+            id=passengers_data[0]['id'],
+        )
 
         with transaction.atomic():
             drive = Drive.objects.create(

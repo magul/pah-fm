@@ -10,11 +10,10 @@ from ...constants import Groups
 from fleet_management.factories import (
     CarFactory,
     DriveFactory,
-    PassengerFactory,
     ProjectFactory,
     UserFactory,
 )
-from ...models import Passenger, Project, User
+from ...models import Project, User
 
 
 class Command(BaseCommand):
@@ -30,7 +29,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Creating 5 users'))
         usernames = []
         for _ in tqdm(range(5)):
-            usernames.append(UserFactory.create().username)
+            usernames.append(UserFactory.create(groups=[]).username)
 
         self.stdout.write(self.style.SUCCESS('Creating 10 passengers'))
         for _ in tqdm(range(10)):
@@ -42,7 +41,6 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('Creating 50 drives'))
         all_users = list(User.objects.all())
-        all_passengers = list(Passenger.objects.all())
         all_projects = list(Project.objects.all())
 
         for _ in tqdm(range(50)):
